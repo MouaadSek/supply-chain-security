@@ -1,0 +1,3 @@
+# CVE acceptées (faux positifs ou risque accepté)
+# Format : un CVE-ID par ligne
+# Chaque exception doit être justifiée et revue régulièrement

@@ -1,0 +1,30 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedregistries
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedRegistries
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            registries:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedregistries
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not image_from_allowed_registry(container.image)
+          msg := sprintf("BLOQUE : image '%v' ne vient pas d'un registre approuve. Autorises : %v", [container.image, input.parameters.registries])
+        }
+        image_from_allowed_registry(image) {
+          registry := input.parameters.registries[_]
+          startswith(image, registry)
+        }
